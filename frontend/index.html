@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Factory Traffic Management System | Smart Tech</title>
+  <link rel="stylesheet" href="style.css?v=2.3">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">🚦</div>
+      <div>
+        <h1>Factory Traffic Management</h1>
+        <p class="subtitle">Garment Manufacturing Junction Control & IoT Simulator</p>
+      </div>
+    </div>
+    <div class="nav-meta">
+      <div class="server-clock-badge">
+        <span class="label">Server Time:</span>
+        <span id="server-clock">--:--:-- UTC</span>
+      </div>
+      <div id="connection-badge" class="badge badge-success">● Connected</div>
+    </div>
+  </header>
+
+  <!-- Stale / Offline Alert Banner -->
+  <div id="stale-banner" class="stale-banner hidden">
+    ⚠️ Connection to traffic server lost! Showing cached state (<span id="stale-seconds">0</span>s ago).
+  </div>
+
+  <!-- Mode Alert Banners -->
+  <div id="emergency-banner" class="mode-banner banner-emergency hidden">
+    🚨 <strong>EMERGENCY PREEMPTION ACTIVE:</strong> Conflicting traffic halted. Clearing emergency vehicle(s).
+  </div>
+  <div id="failure-banner" class="mode-banner banner-failure hidden">
+    ⚠️ <strong>JUNCTION IN FAILURE:</strong> Fail-safe ALL-RED in effect. Reason: <span id="failure-reason-text">Unknown</span>
+  </div>
+  <div id="manual-banner" class="mode-banner banner-manual hidden">
+    ✋ <strong>MANUAL OVERRIDE ACTIVE:</strong> Controlled by <span id="manual-admin-text">Admin</span>. Lease expires in <span id="manual-timer-text">--:--</span>.
+  </div>
+
+  <main class="dashboard-grid">
+    <!-- Left Column: Intersection & Live Status -->
+    <section class="card intersection-section">
+      <div class="card-header">
+        <h2>Junction A — Live Crossroads</h2>
+        <div class="junction-badges">
+          <span id="mode-badge" class="badge badge-primary">AUTOMATIC</span>
+          <span id="phase-badge" class="badge badge-secondary">Phase: --</span>
+        </div>
+      </div>
+
+      <!-- Visual Intersection -->
+      <div class="intersection-wrapper">
+        <div class="crossroads-container">
+          <!-- North Arm -->
+          <div class="arm arm-north">
+            <div class="arm-label">
+              <strong>NORTH</strong>
+              <div class="signal-details">
+                <span class="state-txt" id="state-txt-NORTH">RED</span>
+                <span class="mismatch-badge hidden" id="mismatch-NORTH">Unconfirmed</span>
+              </div>
+              <div class="queue-badge">Queue: <span id="queue-NORTH">0</span></div>
+            </div>
+            <div class="traffic-light" id="light-NORTH">
+              <div class="lamp lamp-red" data-color="RED"></div>
+              <div class="lamp lamp-yellow" data-color="YELLOW"></div>
+              <div class="lamp lamp-green" data-color="GREEN"></div>
+            </div>
+          </div>
+
+          <!-- West Arm -->
+          <div class="arm arm-west">
+            <div class="arm-label">
+              <strong>WEST</strong>
+              <div class="signal-details">
+                <span class="state-txt" id="state-txt-WEST">RED</span>
+                <span class="mismatch-badge hidden" id="mismatch-WEST">Unconfirmed</span>
+              </div>
+              <div class="queue-badge">Queue: <span id="queue-WEST">0</span></div>
+            </div>
+            <div class="traffic-light horizontal" id="light-WEST">
+              <div class="lamp lamp-red" data-color="RED"></div>
+              <div class="lamp lamp-yellow" data-color="YELLOW"></div>
+              <div class="lamp lamp-green" data-color="GREEN"></div>
+            </div>
+          </div>
+
+          <!-- Intersection Center -->
+          <div class="center-cross">
+            <div class="step-indicator">
+              <div class="step-kind" id="step-kind-display">ALL_RED</div>
+              <div class="step-timer" id="step-timer-display">--s</div>
+              <div class="step-status" id="step-status-display">CONFIRMED</div>
+            </div>
+          </div>
+
+          <!-- East Arm -->
+          <div class="arm arm-east">
+            <div class="traffic-light horizontal" id="light-EAST">
+              <div class="lamp lamp-red" data-color="RED"></div>
+              <div class="lamp lamp-yellow" data-color="YELLOW"></div>
+              <div class="lamp lamp-green" data-color="GREEN"></div>
+            </div>
+            <div class="arm-label">
+              <strong>EAST</strong>
+              <div class="signal-details">
+                <span class="state-txt" id="state-txt-EAST">RED</span>
+                <span class="mismatch-badge hidden" id="mismatch-EAST">Unconfirmed</span>
+              </div>
+              <div class="queue-badge">Queue: <span id="queue-EAST">0</span></div>
+            </div>
+          </div>
+
+          <!-- South Arm -->
+          <div class="arm arm-south">
+            <div class="traffic-light" id="light-SOUTH">
+              <div class="lamp lamp-red" data-color="RED"></div>
+              <div class="lamp lamp-yellow" data-color="YELLOW"></div>
+              <div class="lamp lamp-green" data-color="GREEN"></div>
+            </div>
+            <div class="arm-label">
+              <strong>SOUTH</strong>
+              <div class="signal-details">
+                <span class="state-txt" id="state-txt-SOUTH">RED</span>
+                <span class="mismatch-badge hidden" id="mismatch-SOUTH">Unconfirmed</span>
+              </div>
+              <div class="queue-badge">Queue: <span id="queue-SOUTH">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Device Health Summary -->
+      <div class="device-health-table">
+        <h3>Device Health & Hardware Confirmation</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Direction</th>
+              <th>Signal Controller</th>
+              <th>Sensor</th>
+              <th>Desired</th>
+              <th>Confirmed Actual</th>
+            </tr>
+          </thead>
+          <tbody id="device-table-body">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Right Column: Control & Evaluator Simulator -->
+    <section class="controls-column">
+      <!-- Manual Control Panel -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Manual Traffic Override</h2>
+          <span class="badge badge-info">Admin Lease</span>
+        </div>
+        <p class="section-desc">Command a safe transition to a specific green phase or return control to the automatic scheduler.</p>
+        <div class="manual-button-grid">
+          <button class="btn btn-primary" onclick="sendManualCommand('NORTH')">Give NORTH Green</button>
+          <button class="btn btn-primary" onclick="sendManualCommand('SOUTH')">Give SOUTH Green</button>
+          <button class="btn btn-primary" onclick="sendManualCommand('EAST')">Give EAST Green</button>
+          <button class="btn btn-primary" onclick="sendManualCommand('WEST')">Give WEST Green</button>
+          <button class="btn btn-secondary full-width" onclick="sendReturnToAutomatic()">Return to Automatic Control</button>
+        </div>
+        <div id="manual-feedback" class="feedback-msg hidden"></div>
+      </div>
+
+      <!-- Simulator Panel for Evaluation -->
+      <div class="card simulator-card">
+        <div class="card-header">
+          <h2>Evaluator Simulator Panel</h2>
+          <span class="badge badge-warning">Testing Tool</span>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('tab-sensors')">Vehicle Sensors</button>
+          <button class="tab-btn" onclick="switchTab('tab-controller')">Controller Simulator</button>
+          <button class="tab-btn" onclick="switchTab('tab-device')">Hardware Status</button>
+        </div>
+
+        <!-- Tab 1: Vehicle Sensor Events -->
+        <div id="tab-sensors" class="tab-content active">
+          <h4>Simulate Vehicle Arrival (POST /api/sensor-events)</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Direction</label>
+              <select id="sim-direction">
+                <option value="NORTH">NORTH</option>
+                <option value="SOUTH">SOUTH</option>
+                <option value="EAST">EAST</option>
+                <option value="WEST">WEST</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Vehicle Type</label>
+              <select id="sim-vtype">
+                <option value="TRUCK">TRUCK (Weight 3.0)</option>
+                <option value="FORKLIFT">FORKLIFT (Weight 2.0)</option>
+                <option value="EMPLOYEE_VEHICLE">EMPLOYEE (Weight 1.0)</option>
+                <option value="EMERGENCY">EMERGENCY (Preemption)</option>
+                <option value="UNKNOWN">UNKNOWN (Weight 0.5)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vehicle ID</label>
+              <input type="text" id="sim-vid" value="VH-501">
+            </div>
+            <div class="form-group">
+              <label>Event ID</label>
+              <input type="text" id="sim-evid" value="evt-1001">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-success" onclick="simulateArrival()">Simulate Arrival</button>
+            <button class="btn btn-outline" onclick="repeatLastEvent()">Send Exact Event Again (Test Duplicate)</button>
+          </div>
+
+          <hr class="divider">
+
+          <h4>Simulate Vehicle Clearance</h4>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Waiting Vehicle to Clear</label>
+              <select id="sim-clear-select">
+                <option value="">-- No waiting vehicles --</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-warning" onclick="simulateClearance()">Simulate Clearance</button>
+        </div>
+
+        <!-- Tab 2: Controller Simulator Behavior -->
+        <div id="tab-controller" class="tab-content">
+          <h4>Controller Simulation Behavior</h4>
+          <div class="form-group">
+            <label>Mock Controller Response Mode</label>
+            <select id="sim-behavior-select" onchange="updateSimulatorBehavior()">
+              <option value="AUTO_ACK">AUTO_ACK (Auto-replies in 300ms)</option>
+              <option value="HOLD">HOLD (Wait for manual ACK/NACK)</option>
+              <option value="DROP">DROP (Silently drops - tests timeout & retry)</option>
+              <option value="WRONG_STATE">WRONG_STATE (Reports incorrect state)</option>
+              <option value="NACK">NACK (Replies failure rejection)</option>
+            </select>
+          </div>
+
+          <hr class="divider">
+
+          <h4>Manual Controller ACK/NACK (When in HOLD mode)</h4>
+          <div class="form-group">
+            <label>Pending Hardware Commands</label>
+            <select id="sim-pending-cmds">
+              <option value="">-- No pending commands --</option>
+            </select>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-success" onclick="sendManualAck('ACK')">Send Controller ACK</button>
+            <button class="btn btn-danger" onclick="sendManualAck('NACK')">Send Controller NACK</button>
+          </div>
+        </div>
+
+        <!-- Tab 3: Device Offline/Online -->
+        <div id="tab-device" class="tab-content">
+          <h4>Inject Device Status Event (POST /api/device-events)</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Device Type</label>
+              <select id="sim-dev-type">
+                <option value="SIGNAL_CONTROLLER">SIGNAL_CONTROLLER</option>
+                <option value="SENSOR">SENSOR</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Direction</label>
+              <select id="sim-dev-dir">
+                <option value="NORTH">NORTH</option>
+                <option value="SOUTH">SOUTH</option>
+                <option value="EAST">EAST</option>
+                <option value="WEST">WEST</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>New Hardware Status</label>
+            <select id="sim-dev-status">
+              <option value="OFFLINE">OFFLINE (Triggers FAILURE or DEGRADED)</option>
+              <option value="ONLINE">ONLINE (Restores healthy status)</option>
+              <option value="DEGRADED">DEGRADED</option>
+              <option value="WARNING">WARNING</option>
+            </select>
+          </div>
+          <button class="btn btn-danger" onclick="simulateDeviceEvent()">Submit Status Event</button>
+        </div>
+
+        <div id="simulator-feedback" class="feedback-msg hidden"></div>
+      </div>
+
+      <!-- Recent System Audit Log -->
+      <div class="card audit-card">
+        <div class="card-header">
+          <h2>Recent Activity & Audit Trail</h2>
+          <button class="btn-sm btn-outline" onclick="fetchHistory()">Refresh</button>
+        </div>
+        <div class="audit-list-container" id="audit-log-list">
+          <div class="audit-empty">Loading history...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js?v=2.4"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+defaults:
+  timing:
+    green_max_seconds: 30.0
+    green_min_seconds: 10.0
+    green_min_emergency_seconds: 3.0
+    degraded_green_seconds: 20.0
+    yellow_seconds: 5.0
+    all_red_seconds: 2.0
+  tick_interval_ms: 500
+  vehicle_priority_weights:
+    TRUCK: 3.0
+    FORKLIFT: 2.0
+    EMPLOYEE_VEHICLE: 1.0
+    UNKNOWN: 0.5
+  scheduling:
+    aging_weight_per_second: 0.05
+    max_wait_seconds: 120.0
+    switch_margin_ratio: 1.25
+  emergency:
+    hold_cap_seconds: 45.0
+    stale_timeout_seconds: 120.0
+    long_hold_warning_seconds: 120.0
+  manual:
+    lease_seconds: 120.0
+  events:
+    max_event_age_seconds: 120.0
+    max_future_skew_seconds: 5.0
+    vehicle_ghost_expiry_seconds: 600.0
+    remember_seconds: 86400.0
+  controller:
+    ack_timeout_seconds: 2.0
+    max_retries: 2
+    state_refresh_seconds: 30.0
+    failure_resend_seconds: 10.0
+    recovery_stable_seconds: 10.0
+
+audit:
+  retention_days: 30
+
+persistence:
+  db_path: "traffic.db"
+  housekeeping_interval_seconds: 3600.0
+  max_consecutive_commit_failures: 3
+
+api:
+  inbox_max_size: 1000
+  request_timeout_ms: 2000
+  history_default_limit: 50
+  history_max_limit: 200
+  host: "0.0.0.0"
+  port: 8000
+
+simulator:
+  enabled: true
+  behavior: "AUTO_ACK"
+  auto_ack_delay_ms: 300
+
+frontend:
+  poll_interval_ms: 1000
+  history_poll_interval_ms: 2000
+  stale_data_seconds: 5.0
+
+junctions:
+  A:
+    directions: ["NORTH", "SOUTH", "EAST", "WEST"]
+    phases:
+      - name: "NORTH_SOUTH"
+        directions: ["NORTH", "SOUTH"]
+      - name: "EAST_WEST"
+        directions: ["EAST", "WEST"]
+    overrides: {}

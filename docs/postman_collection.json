@@ -1,0 +1,269 @@
+{
+  "info": {
+    "name": "Factory Traffic Management System API",
+    "_postman_id": "c1f17814-467c-4bb7-b257-4e3a05344e47",
+    "description": "Postman Collection for CSI Smart Tech Assessment V2 (Factory Crossroads Traffic Controller)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "junctionId",
+      "value": "A",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System & Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "List Junctions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/junctions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "junctions"]
+            }
+          }
+        },
+        {
+          "name": "Get Junction Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/junctions/{{junctionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "junctions", "{{junctionId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sensor Events",
+      "item": [
+        {
+          "name": "Vehicle Arrival (Truck on North)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"evt-arr-truck-001\",\n  \"junction_id\": \"{{junctionId}}\",\n  \"timestamp\": \"2026-10-30T10:00:00Z\",\n  \"direction\": \"NORTH\",\n  \"event_type\": \"VEHICLE_ARRIVED\",\n  \"vehicle_id\": \"TRUCK-99\",\n  \"vehicle_type\": \"TRUCK\",\n  \"sequence_no\": 1001\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sensor-events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sensor-events"]
+            }
+          }
+        },
+        {
+          "name": "Emergency Arrival (Ambulance on East)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"evt-arr-em-001\",\n  \"junction_id\": \"{{junctionId}}\",\n  \"timestamp\": \"2026-10-30T10:00:02Z\",\n  \"direction\": \"EAST\",\n  \"event_type\": \"VEHICLE_ARRIVED\",\n  \"vehicle_id\": \"AMB-101\",\n  \"vehicle_type\": \"EMERGENCY\",\n  \"sequence_no\": 2001\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sensor-events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sensor-events"]
+            }
+          }
+        },
+        {
+          "name": "Vehicle Cleared",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"evt-clr-truck-001\",\n  \"junction_id\": \"{{junctionId}}\",\n  \"timestamp\": \"2026-10-30T10:00:25Z\",\n  \"direction\": \"NORTH\",\n  \"event_type\": \"VEHICLE_CLEARED\",\n  \"vehicle_id\": \"TRUCK-99\",\n  \"sequence_no\": 1002\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sensor-events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sensor-events"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin & Manual Override",
+      "item": [
+        {
+          "name": "Manual Green Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"MANUAL_GREEN_REQUEST\",\n  \"direction\": \"WEST\",\n  \"requested_by\": \"supervisor-alice\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/junctions/{{junctionId}}/commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "junctions", "{{junctionId}}", "commands"]
+            }
+          }
+        },
+        {
+          "name": "Return to Automatic Control",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command\": \"RETURN_TO_AUTOMATIC\",\n  \"requested_by\": \"supervisor-alice\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/junctions/{{junctionId}}/commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "junctions", "{{junctionId}}", "commands"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hardware Controller & Simulator",
+      "item": [
+        {
+          "name": "Submit Controller ACK",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command_id\": \"cmd-A-0001\",\n  \"junction_id\": \"{{junctionId}}\",\n  \"status\": \"ACK\",\n  \"actual_state\": \"GREEN\",\n  \"direction\": \"NORTH\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/controller-events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "controller-events"]
+            }
+          }
+        },
+        {
+          "name": "Submit Device Status (Sensor Online/Offline)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"dev-stat-01\",\n  \"junction_id\": \"{{junctionId}}\",\n  \"device_type\": \"SENSOR\",\n  \"direction\": \"NORTH\",\n  \"status\": \"OFFLINE\",\n  \"timestamp\": \"2026-10-30T10:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/device-events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "device-events"]
+            }
+          }
+        },
+        {
+          "name": "Configure Simulator Behavior",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"behavior\": \"AUTO_ACK\",\n  \"ack_delay_ms\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/simulator/controller-behavior",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "simulator", "controller-behavior"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit & History",
+      "item": [
+        {
+          "name": "Query Audit History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/junctions/{{junctionId}}/history?limit=25",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "junctions", "{{junctionId}}", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "25"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
